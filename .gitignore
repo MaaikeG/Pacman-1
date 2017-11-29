@@ -3,3 +3,6 @@
 ./test_cases/
 search.pyc
 *.pyc
+search.pyc
+util.pyc
+util.pyc
