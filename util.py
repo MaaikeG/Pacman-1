@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -18,7 +18,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -130,6 +130,24 @@ class FixedRandom:
 """
  Data structures useful for implementing SearchAgents
 """
+
+class Node:
+    def __init__(self, successor, parent=None):
+      self.state = successor[0]
+      self.parent = parent
+      self.action = successor[1]
+      if parent == None or parent.pathCost == None:
+          self.pathCost = successor[2]
+      else:
+          self.pathCost = parent.pathCost + successor[2]
+
+    def getPath(self):
+      path = list()
+      currentNode = self
+      while currentNode.action != None:
+          path.insert(0, currentNode.action)
+          currentNode = currentNode.parent
+      return path
 
 class Stack:
     "A container with a last-in-first-out (LIFO) queuing policy."
