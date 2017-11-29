@@ -1,0 +1,3 @@
+*.pyc
+./layouts/
+./test_cases/
