@@ -73,7 +73,6 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem):
-
     closedList = set()
     openList = util.Stack()
     openList.push(util.Node((problem.getStartState(), None, 0), None))
@@ -91,19 +90,14 @@ def depthFirstSearch(problem):
                     openList.push(nextNode)
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
     closedList = set()
     openList = util.Queue()
-
     openList.push(util.Node((problem.getStartState(), None, 0), None))
 
     while not openList.isEmpty():
         current = openList.pop()
-        print current
-        print "state:", current.state
         closedList.add(current.state)
         if problem.isGoalState(current.state):
-            print "Goal found!"
             return current.getPath()
         else:
             for nextState in problem.getSuccessors(current.state):
@@ -112,19 +106,14 @@ def breadthFirstSearch(problem):
                     openList.push(nextNode)
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
     closedList = set()
     openList = util.PriorityQueue()
-
     openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
 
     while not openList.isEmpty():
         current = openList.pop()
-        print current
-        print "state:", current.state
         closedList.add(current.state)
         if problem.isGoalState(current.state):
-            print "Goal found!"
             return current.getPath()
         else:
             for nextState in problem.getSuccessors(current.state):
