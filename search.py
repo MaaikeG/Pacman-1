@@ -73,37 +73,39 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem):
-    closedList = set()
+    closedList = []
     openList = util.Stack()
     openList.push(util.Node((problem.getStartState(), None, 0), None))
 
     while not openList.isEmpty():
         current = openList.pop()
-        print current
-        closedList.add(current.state)
-        if problem.isGoalState(current.state):
-            return current.getPath()
-        else:
-            for nextState in problem.getSuccessors(current.state):
-                nextNode = util.Node(nextState, current)
-                if nextNode.state not in closedList:
-                    openList.push(nextNode)
+        if current.state not in closedList:
+            if problem.isGoalState(current.state):
+                return current.getPath()
+            else:
+                closedList.append(current.state)
+                for nextState in problem.getSuccessors(current.state):
+                    if nextState not in closedList:
+                        nextNode = util.Node(nextState, current)
+                        openList.push(nextNode)
+
 
 def breadthFirstSearch(problem):
-    closedList = set()
+    closedList = []
     openList = util.Queue()
     openList.push(util.Node((problem.getStartState(), None, 0), None))
 
     while not openList.isEmpty():
         current = openList.pop()
-        closedList.add(current.state)
-        if problem.isGoalState(current.state):
-            return current.getPath()
-        else:
-            for nextState in problem.getSuccessors(current.state):
-                nextNode = util.Node(nextState, current)
-                if nextNode.state not in closedList:
-                    openList.push(nextNode)
+        if current.state not in closedList:
+            if problem.isGoalState(current.state):
+                return current.getPath()
+            else:
+                closedList.append(current.state)
+                for nextState in problem.getSuccessors(current.state):
+                    if nextState not in closedList:
+                        nextNode = util.Node(nextState, current)
+                        openList.push(nextNode)
 
 def uniformCostSearch(problem):
     closedList = set()
