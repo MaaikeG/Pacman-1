@@ -107,21 +107,24 @@ def breadthFirstSearch(problem):
                         nextNode = util.Node(nextState, current)
                         openList.push(nextNode)
 
+
 def uniformCostSearch(problem):
-    closedList = set()
+    closedList = []
     openList = util.PriorityQueue()
     openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
 
     while not openList.isEmpty():
         current = openList.pop()
-        closedList.add(current.state)
-        if problem.isGoalState(current.state):
-            return current.getPath()
-        else:
-            for nextState in problem.getSuccessors(current.state):
-                nextNode = util.Node(nextState, current)
-                if nextNode.state not in closedList:
-                    openList.push(nextNode, nextNode.pathCost)
+        if current.state not in closedList:
+            if problem.isGoalState(current.state):
+                return current.getPath()
+            else:
+                closedList.append(current.state)
+                for nextState in problem.getSuccessors(current.state):
+                    if nextState not in closedList:
+                        nextNode = util.Node(nextState, current)
+                        openList.push(nextNode, nextNode.pathCost)
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -132,24 +135,32 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    closedList = set()
+    closedList = []
     openList = util.PriorityQueue()
-
     openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
 
     while not openList.isEmpty():
         current = openList.pop()
-        print current
-        print "state:", current.state
-        closedList.add(current.state)
-        if problem.isGoalState(current.state):
-            print "Goal found!"
-            return current.getPath()
-        else:
-            for nextState in problem.getSuccessors(current.state):
-                nextNode = util.Node(nextState, current)
-                if nextNode.state not in closedList:
-                    openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
+        if current.state not in closedList:
+            if problem.isGoalState(current.state):
+                return current.getPath()
+            else:
+                closedList.append(current.state)
+                for nextState in problem.getSuccessors(current.state):
+                    if nextState not in closedList:
+                        nextNode = util.Node(nextState, current)
+                        openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
+    #
+    # while not openList.isEmpty():
+    #     current = openList.pop()
+    #     closedList.append(current.state)
+    #     if problem.isGoalState(current.state):
+    #         return current.getPath()
+    #     else:
+    #         for nextState in problem.getSuccessors(current.state):
+    #             nextNode = util.Node(nextState, current)
+    #             if nextNode.state not in closedList:
+    #                 openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
 
 
 # Abbreviations
