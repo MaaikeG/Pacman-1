@@ -368,25 +368,25 @@ def cornersHeuristic(state, problem):
 
     visitedCorners = list(state[1])
 
-    while len(visitedCorners) < 4:
+    while len(visitedCorners) != 4:
         # set some variables to find the nearest corner.
-        nearestCornerDistance = 99999999
-        nearestX = 0
-        nearestY = 0
+        nearestCornerDistance = 999999999999999
+        newX = 0
+        newY = 0
 
         for (cX,cY) in corners:
             if (cX,cY) not in visitedCorners:
                 d = abs(cX - x) + abs(cY - y)
                 if d < nearestCornerDistance:
                     nearestCornerDistance = d
-                    nearestX = cX
-                    nearestY = cY
+                    newX = cX
+                    newY = cY
         # found the nearest corner; add distance to this corner tot total.
         totalDistance += nearestCornerDistance
-        visitedCorners.append((cX,cY))
+        visitedCorners.append((newX,newY))
         # set this corner as new starting position to find next nearest corner
-        x = cX
-        y = cY
+        x = newX
+        y = newY
 
     return totalDistance
 
