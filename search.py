@@ -150,18 +150,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     if nextState not in closedList:
                         nextNode = util.Node(nextState, current)
                         openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
-    #
-    # while not openList.isEmpty():
-    #     current = openList.pop()
-    #     closedList.append(current.state)
-    #     if problem.isGoalState(current.state):
-    #         return current.getPath()
-    #     else:
-    #         for nextState in problem.getSuccessors(current.state):
-    #             nextNode = util.Node(nextState, current)
-    #             if nextNode.state not in closedList:
-    #                 openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
-
 
 # Abbreviations
 bfs = breadthFirstSearch

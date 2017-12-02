@@ -41,6 +41,7 @@ import util
 import time
 import search
 import sys
+import itertools
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -295,7 +296,10 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        return ( (self.startingPosition, []))
+        visitedCorners = []
+        if self.startingPosition in self.corners:
+            visitedCorners.append(self.startingPosition)
+        return ( (self.startingPosition, visitedCorners))
 
     def isGoalState(self, state):
         """
@@ -328,7 +332,7 @@ class CornersProblem(search.SearchProblem):
                 nextState = (nextPos, list(state[1]))
                 if nextPos in self.corners and nextPos not in nextState[1]:
                     nextState[1].append(nextPos)
-                successors.append(( nextState, action, 0))
+                successors.append(( nextState, action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -360,34 +364,29 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    # print "Start. Current position: " , state[0]
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     x,y = state[0]
 
-    totalDistance = 0
+    totalDistance = -1
 
-    visitedCorners = list(state[1])
+    visitedCorners = state[1]
+    unvisitedCorners = list(set(corners) - set(visitedCorners))
 
-    while len(visitedCorners) != 4:
-        # set some variables to find the nearest corner.
-        nearestCornerDistance = 999999999999999
-        newX = 0
-        newY = 0
+    for cornerPermutation in itertools.permutations(unvisitedCorners):
+        d = 0
+        nextX = x
+        nextY = y
 
-        for (cX,cY) in corners:
-            if (cX,cY) not in visitedCorners:
-                d = abs(cX - x) + abs(cY - y)
-                if d < nearestCornerDistance:
-                    nearestCornerDistance = d
-                    newX = cX
-                    newY = cY
-        # found the nearest corner; add distance to this corner tot total.
-        totalDistance += nearestCornerDistance
-        visitedCorners.append((newX,newY))
-        # set this corner as new starting position to find next nearest corner
-        x = newX
-        y = newY
-
+        for (cX,cY) in cornerPermutation:
+            d += abs(cX - nextX) + abs(cY - nextY)
+            nextX = cX
+            nextY = cY
+        if d < totalDistance or totalDistance == -1:
+            totalDistance = d
+        # print "Permutation: ", cornerPermutation
+        # print "Distance: " , d
     return totalDistance
 
 class AStarCornersAgent(SearchAgent):
