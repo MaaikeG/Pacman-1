@@ -407,7 +407,6 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
-        self.heuristicInfo['distances'] = {}
 
     def getStartState(self):
         return self.start
@@ -449,6 +448,27 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+
+def blockedByWalls(walls, f1, f2):
+
+    for i in range(abs(f1[0] - f2[0])):
+        isBlocked = True
+        for j in range (abs (f1[1] - f2[1])):
+            if not walls[i][j]:
+                isBlocked = False
+                continue
+        if isBlocked:
+            return isBlocked
+    for j in range(abs(f1[1] - f2[1])):
+        isBlocked = False
+        for i in range(abs(f1[0] - f2[0])):
+            if not walls[i][j]:
+                isBlocked = False
+                continue
+        if isBlocked:
+            return isBlocked
+
+
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -477,44 +497,80 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    (x,y), foodGrid = state
+    position, foodGrid = state
     foods = foodGrid.asList()
-    currentPos = (x,y)
 
-    if state in problem.heuristicInfo['distances']:
-        return problem.heuristicInfo['distances'][state]
+    if len(foods) == 0:
+        return 0
 
-    if len(problem.heuristicInfo) < len(foods):
+    closestFood, nearestCost = closestPoint(position, foods)
+
+    if tuple(foods) in problem.heuristicInfo:
+        return problem.heuristicInfo[tuple(foods)] + nearestCost
+
+    if 'edges' not in problem.heuristicInfo:
+        problem.heuristicInfo['edges'] = {}
+
         for f in foods:
-            problem.heuristicInfo[f] = []
-            # if d = -1 or abs(x - f[0]) + abs(y - f[1]) < d:
-            #     d = abs(x - f[0]) + abs(y - f[1])
-            #     startNode = f
-        for f in foods:
+            problem.heuristicInfo['edges'][f] = []
+
+        for f1 in foods:
             for f2 in foods:
-                if f2 != f:
-                    d = abs(f[0] - f2[0]) + abs(f[1] - f2[0])
-                    problem.heuristicInfo[f].append((f2, d))
-                    problem.heuristicInfo[f2].append((f, d))
-            problem.heuristicInfo[f].sort(key=lambda x: x[1])
+                if f2 != f1:
+                    d = util.manhattanDistance(f1, f2)
+                    if blockedByWalls(problem.walls, f1, f2):
+                        d += 2
+                    problem.heuristicInfo['edges'][f1].append((f2, d))
+                    problem.heuristicInfo['edges'][f2].append((f1, d))
 
-    if currentPos not in problem.heuristicInfo:
-        problem.heuristicInfo[currentPos] = []
-        for f in foods:
-            d =  abs(x - f[0]) + abs(y - f[1])
-            problem.heuristicInfo[currentPos].append((f, d))
+    foodsEaten = set()
 
+    #take first node as starting point (randomly)
+    start = foods[0]
+
+    edges = util.PriorityQueue()
+    edges.push((0, start), 0)
+
+    currentFood = None
     d = 0
-    n = currentPos
 
-    while len(foods) > 0:
-        (newN,d) = [x for x in problem.heuristicInfo[n] if x[0] in foods][0]
-        n = newN
-        foods.remove(n)
-        d += d
+    while len(foodsEaten) < len(foods):
+        (cost, currentFood) = edges.pop()
+        if currentFood not in foodsEaten:
+            foodsEaten.add(currentFood)
+            d += cost
+            for (f, d) in problem.heuristicInfo['edges'][currentFood]:
+                edges.push((d, f), d)
 
-    problem.heuristicInfo['distances'][state] = d
-    return d
+    problem.heuristicInfo[tuple(foods)] = d
+
+    return d + nearestCost
+
+
+def closestPoint (fromPoint, candidatesList):
+    if len(candidatesList) == 0:
+        return None
+
+    closestPoint = candidatesList[0]
+    closestCost = util.manhattanDistance(fromPoint, closestPoint)
+    for candidate in candidatesList[1:]:
+        thisCost = util.manhattanDistance(fromPoint, candidate)
+        if thisCost < closestCost:
+            closestCost = thisCost
+            closestPoint = candidate
+
+    return closestPoint, closestCost
+
+
+def findClosestDist(current_pos, positions):
+    idx = -1
+    min_dist = None
+    for i in range(len(positions)):
+        dist = util.manhattanDistance(current_pos, positions[i])
+        if min_dist == None or min_dist > dist:
+            min_dist = dist
+            idx = i
+    return idx, min_dist
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
