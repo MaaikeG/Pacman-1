@@ -108,19 +108,6 @@ def uniformCostSearch(problem):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     return genericSearch(problem, util.PriorityQueue(), heuristic)
-    # openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
-    #
-    # while not openList.isEmpty():
-    #     current = openList.pop()
-    #     if current.state not in closedList:
-    #         if problem.isGoalState(current.state):
-    #             return current.getPath()
-    #         else:
-    #             closedList.append(current.state)
-    #             for nextState in problem.getSuccessors(current.state):
-    #                 if nextState not in closedList:
-    #                     nextNode = util.Node(nextState, current)
-    #                     openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
