@@ -287,9 +287,6 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
-        # Please add any code here which you would like to use
-        # in initializing the problem
-        "*** YOUR CODE HERE ***"
 
     def getStartState(self):
         """
@@ -410,6 +407,7 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self.heuristicInfo['distances'] = {}
 
     def getStartState(self):
         return self.start
@@ -479,9 +477,44 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    (x,y), foodGrid = state
+    foods = foodGrid.asList()
+    currentPos = (x,y)
+
+    if state in problem.heuristicInfo['distances']:
+        return problem.heuristicInfo['distances'][state]
+
+    if len(problem.heuristicInfo) < len(foods):
+        for f in foods:
+            problem.heuristicInfo[f] = []
+            # if d = -1 or abs(x - f[0]) + abs(y - f[1]) < d:
+            #     d = abs(x - f[0]) + abs(y - f[1])
+            #     startNode = f
+        for f in foods:
+            for f2 in foods:
+                if f2 != f:
+                    d = abs(f[0] - f2[0]) + abs(f[1] - f2[0])
+                    problem.heuristicInfo[f].append((f2, d))
+                    problem.heuristicInfo[f2].append((f, d))
+            problem.heuristicInfo[f].sort(key=lambda x: x[1])
+
+    if currentPos not in problem.heuristicInfo:
+        problem.heuristicInfo[currentPos] = []
+        for f in foods:
+            d =  abs(x - f[0]) + abs(y - f[1])
+            problem.heuristicInfo[currentPos].append((f, d))
+
+    d = 0
+    n = currentPos
+
+    while len(foods) > 0:
+        (newN,d) = [x for x in problem.heuristicInfo[n] if x[0] in foods][0]
+        n = newN
+        foods.remove(n)
+        d += d
+
+    problem.heuristicInfo['distances'][state] = d
+    return d
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
