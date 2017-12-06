@@ -72,33 +72,6 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def genericSearch(problem, openList):
-    closedList = []
-    openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
-
-    while not openList.isEmpty():
-        current = openList.pop()
-        if current.state not in closedList:
-            if problem.isGoalState(current.state):
-                return current.getPath()
-            else:
-                closedList.append(current.state)
-                for nextState in problem.getSuccessors(current.state):
-                    if nextState not in closedList:
-                        nextNode = util.Node(nextState, current)
-                        openList.push(nextNode, nextNode.pathCost)
-
-def depthFirstSearch(problem):
-    return genericSearch(problem, util.Stack())
-
-
-def breadthFirstSearch(problem):
-    return genericSearch(problem, util.Queue())
-
-
-def uniformCostSearch(problem):
-    return genericSearch(problem, util.PriorityQueue())
-
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
@@ -106,10 +79,8 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
+def genericSearch(problem, openList, heuristic=nullHeuristic):
     closedList = []
-    openList = util.PriorityQueue()
     openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
 
     while not openList.isEmpty():
@@ -123,6 +94,33 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     if nextState not in closedList:
                         nextNode = util.Node(nextState, current)
                         openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
+
+
+def depthFirstSearch(problem):
+    return genericSearch(problem, util.Stack())
+
+def breadthFirstSearch(problem):
+    return genericSearch(problem, util.Queue())
+
+def uniformCostSearch(problem):
+    return genericSearch(problem, util.PriorityQueue())
+
+def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first."""
+    return genericSearch(problem, util.PriorityQueue(), heuristic)
+    # openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
+    #
+    # while not openList.isEmpty():
+    #     current = openList.pop()
+    #     if current.state not in closedList:
+    #         if problem.isGoalState(current.state):
+    #             return current.getPath()
+    #         else:
+    #             closedList.append(current.state)
+    #             for nextState in problem.getSuccessors(current.state):
+    #                 if nextState not in closedList:
+    #                     nextNode = util.Node(nextState, current)
+    #                     openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
