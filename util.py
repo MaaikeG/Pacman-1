@@ -154,7 +154,7 @@ class Stack:
     def __init__(self):
         self.list = []
 
-    def push(self,item):
+    def push(self,item, priority = None):
         "Push 'item' onto the stack"
         self.list.append(item)
 
@@ -171,7 +171,7 @@ class Queue:
     def __init__(self):
         self.list = []
 
-    def push(self,item):
+    def push(self,item, priority = None):
         "Enqueue the 'item' into the queue"
         self.list.insert(0,item)
 

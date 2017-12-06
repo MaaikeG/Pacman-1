@@ -72,45 +72,8 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
+def genericSearch(problem, openList):
     closedList = []
-    openList = util.Stack()
-    openList.push(util.Node((problem.getStartState(), None, 0), None))
-
-    while not openList.isEmpty():
-        current = openList.pop()
-        if current.state not in closedList:
-            if problem.isGoalState(current.state):
-                return current.getPath()
-            else:
-                closedList.append(current.state)
-                for nextState in problem.getSuccessors(current.state):
-                    if nextState not in closedList:
-                        nextNode = util.Node(nextState, current)
-                        openList.push(nextNode)
-
-
-def breadthFirstSearch(problem):
-    closedList = []
-    openList = util.Queue()
-    openList.push(util.Node((problem.getStartState(), None, 0), None))
-
-    while not openList.isEmpty():
-        current = openList.pop()
-        if current.state not in closedList:
-            if problem.isGoalState(current.state):
-                return current.getPath()
-            else:
-                closedList.append(current.state)
-                for nextState in problem.getSuccessors(current.state):
-                    if nextState not in closedList:
-                        nextNode = util.Node(nextState, current)
-                        openList.push(nextNode)
-
-
-def uniformCostSearch(problem):
-    closedList = []
-    openList = util.PriorityQueue()
     openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
 
     while not openList.isEmpty():
@@ -125,6 +88,16 @@ def uniformCostSearch(problem):
                         nextNode = util.Node(nextState, current)
                         openList.push(nextNode, nextNode.pathCost)
 
+def depthFirstSearch(problem):
+    return genericSearch(problem, util.Stack())
+
+
+def breadthFirstSearch(problem):
+    return genericSearch(problem, util.Queue())
+
+
+def uniformCostSearch(problem):
+    return genericSearch(problem, util.PriorityQueue())
 
 def nullHeuristic(state, problem=None):
     """
