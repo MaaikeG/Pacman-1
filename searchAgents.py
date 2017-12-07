@@ -650,15 +650,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        minDist = 999999
-        foods = self.food.asList()
-        # check each food to find the nearest one
-        for food in foods:
-            d = util.manhattanDistance(state, food)
-            if d < minDist:
-                minDist = d
-                nearestFood = food
-
+        nearestFood, cost = getClosestPoint(state, self.food.asList())
         return state == nearestFood
 ####* END OF CHANGED CODE ####
 
