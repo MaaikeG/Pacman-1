@@ -482,22 +482,19 @@ def blockedByWalls(walls, f1, f2):
     # This code seemed like a good idea at the time, but proved to
     # worsen the heuristic significantly. So it is not used, but we just
     # left the code.
-    for i in range(abs(f1[0] - f2[0])):
-        isBlocked = True
-        for j in range (abs (f1[1] - f2[1])):
-            if not walls[i][j]:
-                isBlocked = False
-                continue
-        if isBlocked:
-            return isBlocked
-    for j in range(abs(f1[1] - f2[1])):
-        isBlocked = False
-        for i in range(abs(f1[0] - f2[0])):
-            if not walls[i][j]:
-                isBlocked = False
-                continue
-        if isBlocked:
-            return isBlocked
+    for i in range(min(f1[0], f2[0]), max(f1[0], f2[0]) + 1):
+        col = []
+        for j in range(min(f1[1], f2[1]), max(f1[1], f2[1]) + 1):
+            col.append(walls[i][j])
+        if all(col):
+            return True
+    for j in range(min(f1[1], f2[1]), max(f1[1], f2[1]) + 1):
+        row = []
+        for i in range(min(f1[0], f2[0]), max(f1[0], f2[0]) + 1):
+            row.append(walls[i][j])
+        if all(row):
+            return True
+    return False
 ####* END OF ADDED CODE ####
 
 ####* THE FOLLOWING CODE HAS BEEN CHANGED TO COMPLETE Q7: ####
@@ -611,13 +608,7 @@ class ClosestDotSearchAgent(SearchAgent):
         Returns a path (a list of actions) to the closest dot, starting from
         gameState.
         """
-        # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
-        problem = AnyFoodSearchProblem(gameState)
-
-        return search.bfs(problem)
+        return search.bfs(AnyFoodSearchProblem(gameState))
 ####* END OF CHANGED CODE ####
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -652,15 +643,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        minDist = 999999
-        foods = self.food.asList()
-        # check each food to find the nearest one
-        for food in foods:
-            d = util.manhattanDistance(state, food)
-            if d < minDist:
-                minDist = d
-                nearestFood = food
-
+        nearestFood, cost = getClosestPoint(state, self.food.asList())
         return state == nearestFood
 ####* END OF CHANGED CODE ####
 
