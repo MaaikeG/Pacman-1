@@ -131,29 +131,12 @@ class FixedRandom:
  Data structures useful for implementing SearchAgents
 """
 
-class Node:
-    def __init__(self, successor, parent=None):
-      self.state = successor[0]
-      self.parent = parent
-      self.action = successor[1]
-      if parent == None or parent.pathCost == None:
-          self.pathCost = successor[2]
-      else:
-          self.pathCost = parent.pathCost + successor[2]
-
-    def getPath(self):
-      path = list()
-      currentNode = self
-      while currentNode.action != None:
-          path.insert(0, currentNode.action)
-          currentNode = currentNode.parent
-      return path
-
 class Stack:
     "A container with a last-in-first-out (LIFO) queuing policy."
     def __init__(self):
         self.list = []
 
+####* FOLLOWING METHOD SIGNATURE HAS BEEN CHANGED FOR Q1 - Q4 ####
     def push(self,item, priority = None):
         "Push 'item' onto the stack"
         self.list.append(item)
@@ -171,6 +154,7 @@ class Queue:
     def __init__(self):
         self.list = []
 
+####* FOLLOWING METHOD SIGNATURE HAS BEEN CHANGED FOR Q1 - Q4 ####
     def push(self,item, priority = None):
         "Enqueue the 'item' into the queue"
         self.list.insert(0,item)

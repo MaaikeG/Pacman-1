@@ -79,22 +79,43 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+####* FOLLOWING CODE HAD BEEN ADDED TO COMPLETE ASSIGNMENTS Q1 - Q4: ####
+
+class Node:
+    def __init__(self, successor, parentNode=None):
+      self.state = successor[0]
+      self.action = successor[1]
+      self.parentNode = parentNode
+      self.pathCost = successor[2]
+      if parentNode is not None and parentNode.pathCost is not None:
+          self.pathCost += parentNode.pathCost
+
+def getPath(node):
+      path = list()
+      currentNode = node
+      while currentNode.action != None:
+          path.insert(0, currentNode.action)
+          currentNode = currentNode.parentNode
+      return path
+####* END OF ADDED CODE
+
+####* FOLLOWING CODE HAD BEEN CHANGED TO COMPLETE ASSIGNMENTS Q1 - Q4: ####
+
 def genericSearch(problem, openList, heuristic=nullHeuristic):
     closedList = []
-    openList.push(util.Node((problem.getStartState(), None, 0), None), 0)
+    openList.push(Node((problem.getStartState(), None, 0), None), 0)
 
     while not openList.isEmpty():
         current = openList.pop()
         if current.state not in closedList:
             if problem.isGoalState(current.state):
-                return current.getPath()
+                return getPath(current)
             else:
                 closedList.append(current.state)
-                for nextState in problem.getSuccessors(current.state):
-                    if nextState not in closedList:
-                        nextNode = util.Node(nextState, current)
+                for successor in problem.getSuccessors(current.state):
+                    if successor not in closedList:
+                        nextNode = Node(successor, current)
                         openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
-
 
 def depthFirstSearch(problem):
     return genericSearch(problem, util.Stack())
@@ -108,6 +129,8 @@ def uniformCostSearch(problem):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     return genericSearch(problem, util.PriorityQueue(), heuristic)
+
+####* END OF ADAPTED CODE ####
 
 # Abbreviations
 bfs = breadthFirstSearch

@@ -288,6 +288,7 @@ class CornersProblem(search.SearchProblem):
                 print 'Warning: no food in corner ' + str(corner)
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
 
+####* FOLLOWING CODE HAS BEEN CHANGED TO COMPLETE Q5: ####
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -333,6 +334,7 @@ class CornersProblem(search.SearchProblem):
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
+####* END OF CHANGED CODE ####
 
     def getCostOfActions(self, actions):
         """
@@ -347,7 +349,7 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
-
+####* FOLLOWING CODE HAS BEEN CHANGED TO COMPLETE Q6: ####
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -361,9 +363,8 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    # print "Start. Current position: " , state[0]
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+
+    corners = problem.corners  # These are the corner coordinates
     x,y = state[0]
 
     totalDistance = -1
@@ -371,20 +372,27 @@ def cornersHeuristic(state, problem):
     visitedCorners = state[1]
     unvisitedCorners = list(set(corners) - set(visitedCorners))
 
+    # calculate path length for each order of visiting the corners
+    # and save the shortest possible path length.
     for cornerPermutation in itertools.permutations(unvisitedCorners):
         d = 0
-        nextX = x
+        nextX = x    # start at our current location
         nextY = y
 
+        # calculate path length for visiting the corners in this order
+        # (starting at our current location)
         for (cX,cY) in cornerPermutation:
             d += abs(cX - nextX) + abs(cY - nextY)
-            nextX = cX
+            nextX = cX    # move to next corner.
             nextY = cY
+
+        # if we found a shorter path, or if it's the first path we looked at;
+        # save this distance as total distance
         if d < totalDistance or totalDistance == -1:
             totalDistance = d
-        # print "Permutation: ", cornerPermutation
-        # print "Distance: " , d
+
     return totalDistance
+ ####* END OF CHANGED CODE ####
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -407,6 +415,25 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
+
+####* THE FOLLOWING CODE HAD BEEN CHANGED FOR COMPLETING Q7 ####
+        foods = startingGameState.getFood().asList()
+        self.heuristicInfo['edges'] = {}
+
+        # for each food in the grid, we want a list of connections to other foods
+        for f in foods:
+            self.heuristicInfo['edges'][f] = []
+
+        # calculate distance between each pair of foods and save it in the heuristicInfo
+        for f1 in foods:
+            for f2 in foods:
+                if f2 != f1:
+                    d = util.manhattanDistance(f1, f2)
+                    if blockedByWalls(self.walls, f1, f2):
+                        d += 2
+                    self.heuristicInfo['edges'][f1].append((f2, d))
+                    self.heuristicInfo['edges'][f2].append((f1, d))
+####* END OF CHANGED CODE ####
 
     def getStartState(self):
         return self.start
@@ -448,9 +475,11 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
-
+####* THE FOLLOWING CODE HAS BEEN ADDED TO COMPLETE Q7: ####
 def blockedByWalls(walls, f1, f2):
-
+    # for each row and column between two points, check if the whole row or
+    # column is blocked. If true, all paths between f1 en f2 are blocked so
+    # pacman must make a detour.
     for i in range(abs(f1[0] - f2[0])):
         isBlocked = True
         for j in range (abs (f1[1] - f2[1])):
@@ -467,8 +496,9 @@ def blockedByWalls(walls, f1, f2):
                 continue
         if isBlocked:
             return isBlocked
+####* END OF ADDED CODE ####
 
-
+####* THE FOLLOWING CODE HAS BEEN CHANGED TO COMPLETE Q7: ####
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -500,77 +530,61 @@ def foodHeuristic(state, problem):
     position, foodGrid = state
     foods = foodGrid.asList()
 
+    # no foods left to eat, so cost is 0 (we reached our goal)
     if len(foods) == 0:
         return 0
 
-    closestFood, nearestCost = closestPoint(position, foods)
+    # Get distance to closest food. We need to travel at least this distance
+    # to reach the minimum spanning tree of foods.
+    nearestFood, nearestCost = getClosestPoint(position, foods)
 
+    # If we calculated the minimum spanning tree of this combination of tuples
+    # before, it will be in heuristisInfo, so we don't need to calculate again.
     if tuple(foods) in problem.heuristicInfo:
         return problem.heuristicInfo[tuple(foods)] + nearestCost
 
-    if 'edges' not in problem.heuristicInfo:
-        problem.heuristicInfo['edges'] = {}
-
-        for f in foods:
-            problem.heuristicInfo['edges'][f] = []
-
-        for f1 in foods:
-            for f2 in foods:
-                if f2 != f1:
-                    d = util.manhattanDistance(f1, f2)
-                    if blockedByWalls(problem.walls, f1, f2):
-                        d += 2
-                    problem.heuristicInfo['edges'][f1].append((f2, d))
-                    problem.heuristicInfo['edges'][f2].append((f1, d))
-
     foodsEaten = set()
 
-    #take first node as starting point (randomly)
+    # take first node as starting point
+    # (randomly, is doesn't matter which node this is)
     start = foods[0]
 
+    # we will push all nodes we can reach into this priority queue.
+    # The distance to the node is the priority value.
     edges = util.PriorityQueue()
-    edges.push((0, start), 0)
 
-    currentFood = None
-    d = 0
-
+    edges.push((0, start), 0)  # start with the first node
+    d = 0  # total distance
     while len(foodsEaten) < len(foods):
-        (cost, currentFood) = edges.pop()
+        (cost, currentFood) = edges.pop()  # pop the closest node we can reach in the tree
         if currentFood not in foodsEaten:
             foodsEaten.add(currentFood)
             d += cost
             for (f, d) in problem.heuristicInfo['edges'][currentFood]:
-                edges.push((d, f), d)
+                edges.push((d, f), d)  # push all edges that can be reached from this node
 
+    # when we have reached all nodes, our tree is finished. cash it in heuristicInfo.
     problem.heuristicInfo[tuple(foods)] = d
 
+    # final value is the minimum spanning tree plus the distance to the closest node.
     return d + nearestCost
 
-
-def closestPoint (fromPoint, candidatesList):
-    if len(candidatesList) == 0:
+# Get closest point to x from a list of points.
+# Return closest point and distance to this point.
+def getClosestPoint (x, points):
+    if len(points) == 0:
         return None
 
-    closestPoint = candidatesList[0]
-    closestCost = util.manhattanDistance(fromPoint, closestPoint)
-    for candidate in candidatesList[1:]:
-        thisCost = util.manhattanDistance(fromPoint, candidate)
-        if thisCost < closestCost:
-            closestCost = thisCost
-            closestPoint = candidate
+    closestPoint = points[0]
+    cost = util.manhattanDistance(x, closestPoint)
+    for y in points:
+        costToY = util.manhattanDistance(x, y)
+        if costToY < cost:
+            cost = costToY
+            closestPoint = y
 
-    return closestPoint, closestCost
-
-
-def findClosestDist(current_pos, positions):
-    idx = -1
-    min_dist = None
-    for i in range(len(positions)):
-        dist = util.manhattanDistance(current_pos, positions[i])
-        if min_dist == None or min_dist > dist:
-            min_dist = dist
-            idx = i
-    return idx, min_dist
+    return closestPoint, cost
+####* END OF CHANGED CODE ####
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
