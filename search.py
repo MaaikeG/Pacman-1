@@ -113,7 +113,7 @@ def genericSearch(problem, openList, heuristic=nullHeuristic):
             else:
                 closedList.append(current.state)
                 for successor in problem.getSuccessors(current.state):
-                    if successor not in closedList:
+                    if successor[0] not in closedList:
                         nextNode = Node(successor, current)
                         openList.push(nextNode, nextNode.pathCost + heuristic(nextNode.state, problem))
 
