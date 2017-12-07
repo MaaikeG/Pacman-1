@@ -429,8 +429,6 @@ class FoodSearchProblem:
             for f2 in foods:
                 if f2 != f1:
                     d = util.manhattanDistance(f1, f2)
-                    if blockedByWalls(self.walls, f1, f2):
-                        d += 2
                     self.heuristicInfo['edges'][f1].append((f2, d))
                     self.heuristicInfo['edges'][f2].append((f1, d))
 ####* END OF CHANGED CODE ####
@@ -480,6 +478,10 @@ def blockedByWalls(walls, f1, f2):
     # for each row and column between two points, check if the whole row or
     # column is blocked. If true, all paths between f1 en f2 are blocked so
     # pacman must make a detour.
+
+    # This code seemed like a good idea at the time, but proved to
+    # worsen the heuristic significantly. So it is not used, but we just
+    # left the code.
     for i in range(abs(f1[0] - f2[0])):
         isBlocked = True
         for j in range (abs (f1[1] - f2[1])):
