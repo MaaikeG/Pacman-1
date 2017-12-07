@@ -480,22 +480,22 @@ def blockedByWalls(walls, f1, f2):
     # for each row and column between two points, check if the whole row or
     # column is blocked. If true, all paths between f1 en f2 are blocked so
     # pacman must make a detour.
-    for i in range(abs(f1[0] - f2[0])):
-        isBlocked = True
-        for j in range (abs (f1[1] - f2[1])):
-            if not walls[i][j]:
-                isBlocked = False
-                continue
-        if isBlocked:
-            return isBlocked
-    for j in range(abs(f1[1] - f2[1])):
-        isBlocked = False
-        for i in range(abs(f1[0] - f2[0])):
-            if not walls[i][j]:
-                isBlocked = False
-                continue
-        if isBlocked:
-            return isBlocked
+    if util.manhattanDistance(f1, f2) == 1:
+        return False
+
+    for i in range(min(f1[0], f2[0]), max(f1[0], f2[0]) + 1):
+        col = []
+        for j in range(min(f1[1], f2[1]), max(f1[1], f2[1]) + 1):
+            col.append(walls[i][j])
+        if all(col):
+            return True
+    for j in range(min(f1[1], f2[1]), max(f1[1], f2[1]) + 1):
+        row = []
+        for i in range(min(f1[0], f2[0]), max(f1[0], f2[0]) + 1):
+            row.append(walls[i][j])
+        if all(row):
+            return True
+    return False
 ####* END OF ADDED CODE ####
 
 ####* THE FOLLOWING CODE HAS BEEN CHANGED TO COMPLETE Q7: ####
