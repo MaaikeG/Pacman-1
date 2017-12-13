@@ -86,13 +86,19 @@ class ValueIterationAgent(ValueEstimationAgent):
         if len(actions) == 0:
             return None
 
-        bestSoFar = 0
+        bestSoFar = None
         bestActionSoFar = None
+
         for action in actions:
+            actionValue = 0
+
             for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
-                if self.getValue(nextState) > bestSoFar:
-                    bestSoFar = self.getValue(nextState)
-                    bestActionSoFar = action
+                actionValue += prob * self.getValue(nextState)
+
+            if bestSoFar is None or actionValue > bestSoFar:
+                bestSoFar = actionValue
+                bestActionSoFar = action
+
         return bestActionSoFar
 
     def getPolicy(self, state):
