@@ -45,6 +45,7 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         for i in range(0, iterations):
+            newValues = util.Counter(self.values)
             for state in mdp.getStates():
                 if not mdp.isTerminal(state):
                     resultValue = None
@@ -55,7 +56,8 @@ class ValueIterationAgent(ValueEstimationAgent):
                             actionValue += prob * mdp.getReward(state, action, nextState)
                         if resultValue is None or actionValue > resultValue:
                             resultValue = actionValue
-                    self.values[state] = resultValue
+                    newValues[state] = resultValue
+            self.values = newValues
 
 
     def getValue(self, state):
@@ -71,8 +73,12 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         actionValue = 0
+
         for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
-            actionValue += prob * self.getValue(nextState)
+            if self.mdp.isTerminal(nextState):
+                return self.mdp.getReward(state, action, nextState)
+            else:
+                actionValue += prob * self.discount * self.getValue(nextState)
         return actionValue
 
     def computeActionFromValues(self, state):
