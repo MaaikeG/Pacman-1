@@ -42,10 +42,6 @@ class QLearningAgent(ReinforcementAgent):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
 
-        self.epsilon = args['epsilon']
-        self.gamma = args['gamma']
-        self.alpha = args['alpha']
-
         self.qValues = util.Counter()
 
 
@@ -119,7 +115,7 @@ class QLearningAgent(ReinforcementAgent):
             return None
 
         if util.flipCoin(self.epsilon):
-            return random.choice[actions]
+            return random.choice(list(actions))
         else:
             return self.computeActionFromQValues(state)
 
@@ -132,7 +128,7 @@ class QLearningAgent(ReinforcementAgent):
           NOTE: You should never call this function,
           it will be called on your behalf
         """
-        sample = reward + self.gamma * self.computeValueFromQValues(nextState)
+        sample = reward + self.discount * self.computeValueFromQValues(nextState)
         currentQvalue = self.getQValue(state, action)
         newQValue = (1 - self.alpha) * currentQvalue + self.alpha * sample
         self.qValues[(state, action)] = newQValue
