@@ -44,7 +44,7 @@ class PerceptronClassifier:
         Use the provided self.weights[label] data structure so that
         the classify method works correctly. Also, recall that a
         datum is a counter from features to values for those features
-        (and thus represents a vector a values).
+        (and thus represents a vector of values).
         """
 
         self.features = trainingData[0].keys() # could be useful later
@@ -54,8 +54,13 @@ class PerceptronClassifier:
         for iteration in range(self.max_iterations):
             print "Starting iteration ", iteration, "..."
             for i in range(len(trainingData)):
-                "*** YOUR CODE HERE ***"
-                util.raiseNotDefined()
+                classification = self.classify(trainingData)
+                for j in range(len(classification)):
+                    if not classification[j] == validationLabels[j]:
+                        vector = self.weights[classification[j]] * trainingData[j]
+                        self.weights[validationLabels[j]].incrementAll(range(0, len(trainingData[i])), vector)
+                        self.weights[classification[j]].incrementAll(range(0, len(trainingData[i])), -vector)
+
 
     def classify(self, data ):
         """
