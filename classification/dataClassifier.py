@@ -125,22 +125,33 @@ def enhancedPacmanFeatures(state, action):
     features = util.Counter()
     successor = state.generateSuccessor(0, action)
 
-    pacmanPos = successor.data.agentStates[0].configuration.pos
+    pacmanPos = successor.getPacmanState().configuration.pos
+    ghosts = successor.getGhostStates()
 
-    distanceToGhost = None
-    for i in range(1, len(successor.data.agentStates)):
-        ghostPos = successor.data.agentStates[i].configuration.pos
+    for i in range(len(ghosts)):
+        ghostPos = ghosts[i].configuration.pos
         dist = util.manhattanDistance(pacmanPos, ghostPos)
-        if distanceToGhost is None or dist < distanceToGhost:
-            distanceToGhost = dist
-    features['distanceToNearestGhost'] = distanceToGhost
+        features[('DistanceGhost', i)] = 1 / (0.1 + 0.2 * dist)
+
+        if (ghosts[i].configuration.direction == 'West' and ghostPos[0] > pacmanPos[0]
+            or ghosts[i].configuration.direction == 'East' and ghostPos[0] < pacmanPos[0]
+            or ghosts[i].configuration.direction == 'North' and ghostPos[1] < pacmanPos[1]
+            or ghosts[i].configuration.direction == 'South' and ghostPos[1] > pacmanPos[1]):
+            features['ghostsComingMyWay'] += 1
+
     features['numberOfPossibleActions'] = len(successor.getLegalActions())
 
-    features['capsuleCount'] = len(successor.data.capsules)
-    capsuleEaten = False
-    if not successor.data._capsuleEaten is None:
-        capsuleEaten = True
-    features['capsuleEaten'] = capsuleEaten
+    capsules = successor.getCapsules()
+    for i in range(len(capsules)):
+        features[('capsuledistance', i)] = 0.1 * util.manhattanDistance(capsules[i], pacmanPos)
+
+    food = sorted([util.manhattanDistance(pacmanPos, i) for i in successor.getFood().asList()])
+    for i in range(len(food)):
+        features[("food", i)] = 1 / (0.1 + 0.1 * food[i])
+
+    features['capsuleEaten'] = 10 * int(not successor.data._capsuleEaten is None)
+    features["stop"] = int(action == 'Stop') * 100
+
     return features
 
 
