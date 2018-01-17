@@ -49,10 +49,6 @@ class PerceptronClassifier:
 
         self.features = trainingData[0].keys() # could be useful later
 
-        for label in self.legalLabels:
-            for feature in self.features:
-                self.weights[label][feature] = 1
-
         for iteration in range(self.max_iterations):
             print "Starting iteration ", iteration, "..."
             for i in range(len(trainingData)):
