@@ -123,8 +123,24 @@ def enhancedPacmanFeatures(state, action):
     It should return a counter with { <feature name> : <feature value>, ... }
     """
     features = util.Counter()
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    successor = state.generateSuccessor(0, action)
+
+    pacmanPos = successor.data.agentStates[0].configuration.pos
+
+    distanceToGhost = None
+    for i in range(1, len(successor.data.agentStates)):
+        ghostPos = successor.data.agentStates[i].configuration.pos
+        dist = util.manhattanDistance(pacmanPos, ghostPos)
+        if distanceToGhost is None or dist < distanceToGhost:
+            distanceToGhost = dist
+    features['distanceToNearestGhost'] = distanceToGhost
+    features['numberOfPossibleActions'] = len(successor.getLegalActions())
+
+    features['capsuleCount'] = len(successor.data.capsules)
+    capsuleEaten = False
+    if not successor.data._capsuleEaten is None:
+        capsuleEaten = True
+    features['capsuleEaten'] = capsuleEaten
     return features
 
 
