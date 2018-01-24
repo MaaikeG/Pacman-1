@@ -74,6 +74,7 @@ class MiraClassifier:
                     nextLabel = update.argMax()
                     if trainingLabels[i] == nextLabel:
                         continue
+                    # determine tau for the minimum update
                     t = (w[nextLabel] - w[trainingLabels[i]]) * trainingData[i] + 1.0
                     t = t / ((trainingData[i] * trainingData[i]) * 2)
                     t = min(c, t)
