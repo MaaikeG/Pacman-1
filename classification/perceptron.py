@@ -57,9 +57,9 @@ class PerceptronClassifier:
                     vectors[l] = self.weights[l] * trainingData[i]
                 guess = vectors.argMax()
 
-                if not guess == validationLabels[i]:
-                    self.weights[validationLabels[i]] += validationData[i]
-                    self.weights[guess] -= validationData[i]
+                if not guess == trainingLabels[i]:
+                    self.weights[trainingLabels[i]] += trainingData[i]
+                    self.weights[guess] -= trainingData[i]
 
 
     def classify(self, data ):
