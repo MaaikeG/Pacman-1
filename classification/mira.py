@@ -69,8 +69,8 @@ class MiraClassifier:
                 print "Starting iteration: ", iter
                 for i in range(len(trainingData)):
                     update = util.Counter()
-                    for iterlabel in self.legalLabels:
-                        update[iterlabel] = w[iterlabel] * trainingData[i]
+                    for legalLabel in self.legalLabels:
+                        update[legalLabel] = w[legalLabel] * trainingData[i]
                     nextLabel = update.argMax()
                     if trainingLabels[i] == nextLabel:
                         continue
