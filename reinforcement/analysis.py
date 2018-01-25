@@ -60,8 +60,8 @@ def question3e():
     # If not possible, return 'NOT POSSIBLE'
 
 def question6():
-    answerEpsilon = None
-    answerLearningRate = None
+    answerEpsilon = NOT POSSIBLE
+    answerLearningRate = NOT POSSIBLE
     return answerEpsilon, answerLearningRate
     # If not possible, return 'NOT POSSIBLE'
 

@@ -72,17 +72,88 @@ def enhancedFeatureExtractorDigit(datum):
     for this datum (datum is of type samples.Datum).
 
     ## DESCRIBE YOUR ENHANCED FEATURES HERE...
-
+		I check how many areas with the same color there are.
+		This I do by checking neighbouring pixels for the same color and adding those as checked.
+		When a pixel it isnt the same color this will start a new area when it checking for its neighbours.
+		
+		I check how many points the digit has with only 1 neighbor. This point is most likely a begin or start point. 
+		However some digits have more points, 3, or some points have only 1, 6 and 9, and there are digits with 0 endpoints ,8.
     ##
     """
     features =  basicFeatureExtractorDigit(datum)
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Controleer opzichzelf staande gebieden  
+    areaCount = 0
+    pointsToDo = []
+    pointsHandled = set()
+    for x in xrange(DIGIT_DATUM_WIDTH):
+        for y in xrange(DIGIT_DATUM_HEIGHT):
+            if (x, y) not in pointsHandled and datum.getPixel(x, y) < 1:
+                pointsToDo.append((x,y))
+                areaCount += 1
+                while pointsToDo:
+                    point = pointsToDo.pop()
+                    pointsHandled.add(point)
+                    neighborsPoint = getNeighbors(*point)
+                    for neighbor in neighborsPoint:
+                        if datum.getPixel(*neighbor) < 1 and neighbor not in pointsToDo and neighbor not in pointsHandled:
+                           pointsToDo.append(neighbor)
+    
+    features["1whitearea"] = areaCount % 2
+    features["2whitearea"] = (areaCount >> 1) % 2 
 
+    # check how many endpoints a digit has, points with only 1 neighbour
+    endPoints = 0
+    for x in xrange(DIGIT_DATUM_WIDTH):
+        for y in xrange(DIGIT_DATUM_HEIGHT):
+	        if not datum.getPixel(x,y) < 2 and getNeighborsCount(datum,x,y) < 2:
+			    endPoints += 1          
+    features["evenEndPoints"] = endPoints
     return features
 
+def getNeighbors(x, y):
 
+    neighbors = []
+    if x > 0:
+        neighbors.append((x - 1, y))
+    if x < DIGIT_DATUM_WIDTH - 1:
+        neighbors.append((x + 1, y))
+    if y > 0:
+        neighbors.append((x, y - 1))
+    if y < DIGIT_DATUM_HEIGHT - 1:
+        neighbors.append((x, y + 1))
+    return neighbors
+
+	
+def getNeighborsCount(datum, x,y):
+
+    count = 0
+    if x > 0:
+        if datum.getPixel(x - 1, y) == 2:
+		    count += 1
+    if x < DIGIT_DATUM_WIDTH - 1:
+        if datum.getPixel(x + 1, y) == 2:
+		    count += 1
+    if y > 0:
+        if datum.getPixel(x, y - 1) == 2:
+		    count += 1
+    if y < DIGIT_DATUM_HEIGHT - 1:
+        if datum.getPixel(x, y + 1) == 2:
+		    count += 1
+    if y < DIGIT_DATUM_HEIGHT - 1 and x > 0:
+        if datum.getPixel(x - 1, y + 1) == 2:
+		    count += 1
+    if y < DIGIT_DATUM_HEIGHT - 1 and x < DIGIT_DATUM_WIDTH - 1:
+        if datum.getPixel(x + 1, y + 1) == 2:
+		    count += 1
+    if y > 0 and x > 0:
+        if datum.getPixel(x - 1, y - 1) == 2:
+		    count += 1
+    if y > 0 and  x < DIGIT_DATUM_WIDTH - 1:
+        if datum.getPixel(x + 1, y - 1) == 2:
+		    count += 1
+    return count
 
 def basicFeatureExtractorPacman(state):
     """
