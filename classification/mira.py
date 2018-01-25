@@ -60,8 +60,45 @@ class MiraClassifier:
         datum is a counter from features to values for those features
         representing a vector of values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        weight = None
+        score= 0
+        w = self.weights
+        # Go over each value within the constant C
+        for c in Cgrid:
+            for iter in range(self.max_iterations):
+                print "Starting iteration: ", iter
+                for i in range(len(trainingData)):
+                    update = util.Counter()
+                    for legalLabel in self.legalLabels:
+                        update[legalLabel] = w[legalLabel] * trainingData[i]
+                    nextLabel = update.argMax()
+                    if trainingLabels[i] == nextLabel:
+                        continue
+                    # determine tau for the minimum update
+                    t = (w[nextLabel] - w[trainingLabels[i]]) * trainingData[i] + 1.0
+                    t = t / ((trainingData[i] * trainingData[i]) * 2)
+                    t = min(c, t)
+                    # update Wy and Wy*
+                    for feature in self.features:
+                        w[trainingLabels[i]][feature] = w[trainingLabels[i]][feature] + t * trainingData[i][feature]
+                        w[nextLabel][feature] = w[nextLabel][feature] - t * trainingData[i][feature]
+            # classify data and count correct labels
+            tempCorrect = self.count_temps(self.classify(validationData), validationLabels)
+            if tempCorrect < score:
+                continue
+            score = tempCorrect
+            weight = w
+        if weight == None:
+            return
+        w = weight
+
+    def count_temps(self, guesses, validationLabels):
+        temps = 0
+        for i in range(len(guesses)):
+            if(guesses[i] != validationLabels[i]):
+                continue
+            temps += 1;
+        return temps
 
     def classify(self, data ):
         """

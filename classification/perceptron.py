@@ -44,18 +44,23 @@ class PerceptronClassifier:
         Use the provided self.weights[label] data structure so that
         the classify method works correctly. Also, recall that a
         datum is a counter from features to values for those features
-        (and thus represents a vector a values).
+        (and thus represents a vector of values).
         """
 
         self.features = trainingData[0].keys() # could be useful later
-        # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
-        # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
 
         for iteration in range(self.max_iterations):
             print "Starting iteration ", iteration, "..."
             for i in range(len(trainingData)):
-                "*** YOUR CODE HERE ***"
-                util.raiseNotDefined()
+                vectors = util.Counter()
+                for l in self.legalLabels:
+                    vectors[l] = self.weights[l] * trainingData[i]
+                guess = vectors.argMax()
+
+                if not guess == trainingLabels[i]:
+                    self.weights[trainingLabels[i]] += trainingData[i]
+                    self.weights[guess] -= trainingData[i]
+
 
     def classify(self, data ):
         """
@@ -79,7 +84,7 @@ class PerceptronClassifier:
         """
         featuresWeights = []
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        weights = sorted(self.weights[label].items(), key=lambda x: x[1], reverse=True)
+        for i in range(0, 99):
+            featuresWeights.append(weights[i][0])
         return featuresWeights

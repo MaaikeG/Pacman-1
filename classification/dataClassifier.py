@@ -194,8 +194,35 @@ def enhancedPacmanFeatures(state, action):
     It should return a counter with { <feature name> : <feature value>, ... }
     """
     features = util.Counter()
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    successor = state.generateSuccessor(0, action)
+
+    pacmanPos = successor.getPacmanState().configuration.pos
+    ghosts = successor.getGhostStates()
+
+    for i in range(len(ghosts)):
+        ghostPos = ghosts[i].configuration.pos
+        dist = util.manhattanDistance(pacmanPos, ghostPos)
+        features[('DistanceGhost', i)] = 1 / (0.1 + 0.2 * dist)
+
+        if (ghosts[i].configuration.direction == 'West' and ghostPos[0] > pacmanPos[0]
+            or ghosts[i].configuration.direction == 'East' and ghostPos[0] < pacmanPos[0]
+            or ghosts[i].configuration.direction == 'North' and ghostPos[1] < pacmanPos[1]
+            or ghosts[i].configuration.direction == 'South' and ghostPos[1] > pacmanPos[1]):
+            features['ghostsComingMyWay'] += 1
+
+    features['numberOfPossibleActions'] = len(successor.getLegalActions())
+
+    capsules = successor.getCapsules()
+    for i in range(len(capsules)):
+        features[('capsuledistance', i)] = 0.1 * util.manhattanDistance(capsules[i], pacmanPos)
+
+    food = sorted([util.manhattanDistance(pacmanPos, i) for i in successor.getFood().asList()])
+    for i in range(len(food)):
+        features[("food", i)] = 1 / (0.1 + 0.1 * food[i])
+
+    features['capsuleEaten'] = 10 * int(not successor.data._capsuleEaten is None)
+    features["stop"] = int(action == 'Stop') * 100
+
     return features
 
 
